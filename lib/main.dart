@@ -1,4 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:dynamic_themes/dynamic_themes.dart';
+import 'package:animais/ui/dark.dart';
+
+class AppThemes {
+  static const int dark = 0;
+  static const int light = 1;
+}
+
+final themeCollection = ThemeCollection(
+  themes: {
+    AppThemes.dark: ThemeData.dark().copyWith(
+        colorScheme: const ColorScheme.dark().copyWith(primary: Colors.blue)),
+    AppThemes.light: ThemeData.light().copyWith(
+        colorScheme: const ColorScheme.light().copyWith(primary: Colors.blue)),
+  },
+);
 
 final List<Animal> _animal = [
   Dog(),
@@ -77,14 +93,16 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Animais',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: const MyHomePage(title: 'Animais'),
-    );
+    return DynamicTheme(
+        themeCollection: themeCollection,
+        defaultThemeId: AppThemes.dark, // optional, default id is 0
+        builder: (context, theme) {
+          return MaterialApp(
+            title: 'Flutter Demo',
+            theme: theme,
+            home: const MyHomePage(title: 'Flutter Demo Home Page'),
+          );
+        });
   }
 }
 
@@ -102,6 +120,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   String _action = '';
+  final ColorMode _colorMode = ColorMode();
 
   void _talk() {
     setState(() {
@@ -122,6 +141,14 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
+        actions: [
+          IconButton(
+            icon: _colorMode.getIcon(context),
+            onPressed: () {
+              _colorMode.toggle(context);
+            },
+          ),
+        ],
       ),
       body: Center(
         child: Column(
